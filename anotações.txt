@@ -1,0 +1,89 @@
+
+Diretório de Salvamento de Sessões:
+
+Causa: O PHP pode estar configurado para armazenar os arquivos de sessão em um diretório comum (especificado em session.save_path). Se dois projetos estiverem usando o mesmo diretório, eles podem compartilhar arquivos de sessão.
+Solução: Verifique a configuração de session.save_path no seu php.ini e, se necessário, configure um diretório de sessão separado para cada projeto.
+
+CODIGO:
+ini_set('session.save_path', '/caminho/para/diretório/único');
+session_start();
+
+Sessões não Limpas:
+
+Causa: Se a sessão não for adequadamente destruída ou se o cookie da sessão não for limpo, informações de sessões antigas podem estar acessíveis.
+
+Solução: Certifique-se de destruir as sessões corretamente quando elas não forem mais necessárias.
+CODIGO
+session_start();
+$_SESSION = array();
+if (ini_get("session.use_cookies")) {
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 42000,
+        $params["path"], $params["domain"],
+        $params["secure"], $params["httponly"]
+    );
+}
+session_destroy();
+
+
+
+Se você está vendo variáveis de sessão de um projeto em outro projeto, mesmo que eles estejam em pastas diferentes, isso pode ocorrer por algumas razões relacionadas à configuração e ao manejo de sessões no PHP. Aqui estão algumas possíveis causas e soluções para o problema:
+
+Possíveis Causas e Soluções:
+Nome da Sessão Configurado Globalmente:
+
+Causa: O PHP usa uma configuração global para o nome da sessão (session.name), que é armazenado em um cookie. Se dois projetos diferentes compartilham o mesmo nome de sessão, eles podem acessar a mesma sessão.
+
+Solução: Certifique-se de que cada projeto tenha um nome de sessão único. Você pode definir o nome da sessão no início do seu script PHP usando session_name().
+
+php
+Copiar código
+session_name("nome_unico_para_o_projeto");
+session_start();
+Diretório de Salvamento de Sessões:
+
+Causa: O PHP pode estar configurado para armazenar os arquivos de sessão em um diretório comum (especificado em session.save_path). Se dois projetos estiverem usando o mesmo diretório, eles podem compartilhar arquivos de sessão.
+
+Solução: Verifique a configuração de session.save_path no seu php.ini e, se necessário, configure um diretório de sessão separado para cada projeto.
+
+php
+Copiar código
+ini_set('session.save_path', '/caminho/para/diretório/único');
+session_start();
+Sessões não Limpas:
+
+Causa: Se a sessão não for adequadamente destruída ou se o cookie da sessão não for limpo, informações de sessões antigas podem estar acessíveis.
+
+Solução: Certifique-se de destruir as sessões corretamente quando elas não forem mais necessárias.
+
+php
+Copiar código
+session_start();
+$_SESSION = array();
+if (ini_get("session.use_cookies")) {
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 42000,
+        $params["path"], $params["domain"],
+        $params["secure"], $params["httponly"]
+    );
+}
+session_destroy();
+
+Configuração do Servidor Web:
+Causa: Em alguns casos, a configuração do servidor web pode estar compartilhando sessões entre diferentes aplicações ou virtual hosts.
+Solução: Verifique as configurações do servidor web (por exemplo, Apache, Nginx) para garantir que a configuração de sessão está isolada para cada aplicação.
+Uso de Cookies de Sessão:
+
+Causa: Se os cookies de sessão não tiverem um domínio específico, eles podem ser acessíveis em diferentes subdomínios ou diretórios.
+
+Solução: Defina explicitamente o domínio e o caminho do cookie de sessão.
+CODIGO
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => 'seu-dominio.com',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
+session_start();
